@@ -16,27 +16,11 @@
 set -e
 
 echo "==============================="
-echo executing $0 $@
-echo executing on machine `uname -a`
+echo "executing $0 $@"
+echo "executing on machine `uname -a`"
 
 usage() {
-    echo run BuildAndTestOVS -h for help
-}
-
-function delrpm() {
-    set +e
-    rpm -q $1
-    if [ $? -eq 0 ]; then
-        sudo rpm -e --allmatches $1
-    fi
-    set -e
-}
-function cleanrpms() {
-    delrpm openvswitch
-    delrpm dpdk-devel
-    delrpm dpdk-tools
-    delrpm dpdk-examples
-    delrpm dpdk
+    echo "run BuildAndTestOVS -h for help"
 }
 
 while getopts "cdg:hkp:u:v" opt; do
@@ -73,8 +57,12 @@ HOME=`pwd`
 TOPDIR=$HOME
 TMPDIR=$TOPDIR/ovsrpm
 
+BUILDDIR=$HOME
+
+source $BUILDDIR/functions.sh
+
 echo "---------------------------------------"
-echo Clean out old working dir
+echo "Clean out old working dir."
 echo
 if [ -d $TMPDIR ]
 then
@@ -83,7 +71,7 @@ fi
 
 function install_pre_reqs() {
     echo "----------------------------------------"
-    echo Install pre-reqs.
+    echo "Install pre-reqs."
     echo
     sudo yum -y install gcc make python-devel openssl-devel kernel-devel graphviz \
                 kernel-debug-devel autoconf automake rpm-build redhat-rpm-config \
@@ -97,7 +85,7 @@ kernel_version=$(uname -a | awk '{print $3}')
 RPMDIR=$HOME/rpmbuild
 
 echo "---------------------------------------"
-echo Clean out old reminents of old rpms and rpm _topdir.
+echo "Clean out old reminents of old rpms and rpm _topdir."
 echo
 
 rm openvswitch*.rpm || true
@@ -106,7 +94,7 @@ if [  -d $RPMDIR ]; then
 fi
 
 echo "---------------------------------------"
-echo Create new rpm _topdir.
+echo "Create new rpm _topdir."
 echo
 mkdir -p $HOME/rpmbuild/RPMS
 mkdir -p $HOME/rpmbuild/SOURCES
@@ -133,7 +121,7 @@ if [ ! -z $DPDK ]; then
     cp $TMPDIR/ovs-snap/* $RPMDIR/SOURCES
     snapgit=`grep "define snapver" $TMPDIR/ovs-snap/openvswitch.spec | cut -c26-33`
     echo "-----------------------------------------------"
-    echo remove any old installed ovs and dpdk rpms.
+    echo "Remove any old installed ovs and dpdk rpms."
     echo
     cleanrpms
 
@@ -185,7 +173,7 @@ else
         export VERSION=$basever
 
         echo "--------------------------------------------"
-        echo making distribution tarball for Open vswitch version $VERSION
+        echo "Making distribution tarball for Open vswitch version $VERSION"
         echo
         ./boot.sh
         ./configure
@@ -208,13 +196,13 @@ fi
 if [ ! -z $kmod ]; then
     cd $TMPDIR/ovs
     echo "--------------------------------------------"
-    echo making distribution tarball for Open vswitch version $VERSION
+    echo "Making distribution tarball for Open vswitch version $VERSION"
     echo
     ./boot.sh
     ./configure
     make dist
     echo "--------------------------------------------"
-    echo Copy distribution tarball to $HOME/rpmbuild/SOURCES
+    echo "Copy distribution tarball to $HOME/rpmbuild/SOURCES"
     echo
     cp openvswitch-*.tar.gz $HOME/rpmbuild/SOURCES
     echo "--------------------------------------------"

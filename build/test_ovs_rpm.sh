@@ -24,25 +24,10 @@ echo executing on machine `uname -a`
 
 usage() {
     echo $0 [-d] [-k]
-    -d -- Test with DPDK
-    -k -- Load linux kernel module
+    echo -d -- Test with DPDK
+    echo -k -- Load linux kernel module
 }
 
-function delrpm() {
-    set +e
-    rpm -q $1
-    if [ $? -eq 0 ]; then
-        sudo rpm -e --allmatches $1
-    fi
-    set -e
-}
-function cleanrpms() {
-    delrpm openvswitch
-    delrpm dpdk-devel
-    delrpm dpdk-tools
-    delrpm dpdk-examples
-    delrpm dpdk
-}
 function uninstallrpms() {
     cleanrpms
 }
@@ -74,6 +59,9 @@ done
 HOME=`pwd`
 TOPDIR=$HOME
 TMPDIR=$TOPDIR/ovsrpm
+
+BUILDDIR=$HOME
+source $BUILDDIR/functions.sh
 
 if [ -d $TMPDIR ]
 then
